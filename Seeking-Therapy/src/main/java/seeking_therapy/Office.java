@@ -8,6 +8,8 @@ import java.util.TimerTask;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import javax.swing.plaf.synth.SynthSeparatorUI;
+
 public class Office {
 	private static Object therapist;
 	private static boolean dayIsNotOver = true;
@@ -29,8 +31,8 @@ public class Office {
 			@Override
 			public void run() {
 				if (fullDay != 0) {
-					System.out.println(fullDay);
-					System.out.println(dayIsNotOver);
+					// System.out.println(fullDay);
+					// System.out.println(dayIsNotOver);
 					dayIsNotOver = true;
 					--fullDay;
 				} else {
@@ -59,27 +61,30 @@ public class Office {
 		patientService = Executors.newCachedThreadPool();
 		while (dayIsNotOver) {
 			// Thread sleep
-
-			try {
-				Thread.sleep(random.nextInt(maxTime + 1 - minTime) + minTime);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-
-			// Create 1-3 new Patients threads start time
-			//System.out.println("Number of Patients Created: " + numberOfPatients);
-			for (int i = 0; i < numberOfPatients; i++) {
-
-				if (dayIsNotOver != false) {
-					Patient currentPatient = new Patient();
-					listOfpatients.add(listOfpatients.size(), currentPatient);
-					patientService.submit(() -> currentPatient.run());
-					if (currentPatient.sessionEnd == true) {
-						listOfpatients.remove(listOfpatients.size());
-					}
+			if (dayIsNotOver == true) {
+				try {
+					int sessionTime = random.nextInt(maxTime + 1 - minTime) + minTime;
+					Thread.sleep(sessionTime);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
 				}
 
+				// Create 1-3 new Patients threads start time
+				numberOfPatients = random.nextInt(3) + 1;
+				System.out.println("Number of Patients Created: " + numberOfPatients);
+				for (int i = 0; i < numberOfPatients; i++) {
+
+					if (dayIsNotOver != false) {
+						Patient currentPatient = new Patient();
+						listOfpatients.add(listOfpatients.size(), currentPatient);
+						patientService.submit(() -> currentPatient.run());
+						if (currentPatient.sessionEnd == true) {
+							listOfpatients.remove(listOfpatients.size());
+						}
+					}
+
+				}
 			}
 		}
 		patientService.shutdownNow();
@@ -97,11 +102,14 @@ public class Office {
 				patientNotSeenCounter++;
 			}
 		}
-
-		System.out.println("//End of sessions -- Patients not seen: " + patientsNotSeen.size());
+		patientService.shutdownNow();
+		System.out.println("\n\n---//End of sessions -- Patients not seen: " + patientsNotSeen.size());
 		for (Patient patient : patientsNotSeen) {
 
-			System.out.println("#" + patient.getId() + " wait time: " + patient.waitTime);
+			System.out.println("\nPatient not seen : " + patient.getId());
+			// System.out.println("#" + patient.getId());
+			// System.out.println("# " + patient.getId() + "--------Total time: " +
+			// patient.totalTime);
 		}
 	}
 }
