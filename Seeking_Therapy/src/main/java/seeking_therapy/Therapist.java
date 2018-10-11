@@ -32,8 +32,8 @@ public class Therapist {
 			@Override
 			public void run() {
 			
-				
-				
+		
+		
 				patientService.submit(() -> currentPatient.run());
 				patientService.shutdown();
 			}
