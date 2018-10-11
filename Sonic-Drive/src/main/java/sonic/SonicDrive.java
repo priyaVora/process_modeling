@@ -27,67 +27,53 @@ public class SonicDrive {
 		for (int i = 0; i < CUSTOMERS; i++) {
 			final int j = i;
 			Customer currentCustomer = new Customer();
-			//System.out.println("\n\nCurrent Available parking spots " + parkingSpots.availablePermits());
 			System.out.println(
 					"Customer " + currentCustomer.getId() + " wait time starts: " + System.currentTimeMillis());
 			System.out.println("   Diner Session + " + currentCustomer.getId() + " begins");
 
-			int waitForParkingSpot = random.nextInt(1000);
-			sleep(waitForParkingSpot);
-			System.out.println("#" + currentCustomer.getId() + " Wait--Parking Spot");
+			// int waitForParkingSpot = random.nextInt(1000);
+			// sleep(waitForParkingSpot);
+			// System.out.println("#" + currentCustomer.getId() + " Wait--Parking Spot");
 
 			sonicService.submit(() -> {
 				try {
-					if (parkingSpots.availablePermits() != 0) {
-						System.out.println("Customer " + currentCustomer.getId() + " has parking spot.");
-						parkingSpots.acquire();
-					} else { 
-						sleep(2000);
-					}
+					System.out.println("Customer " + currentCustomer.getId() + " has parking spot.");
+					parkingSpots.acquire();
+
 				} catch (InterruptedException ex) {
 				}
 				try {
-					int waitForEmployeeToTakeOrder = random.nextInt(1000);
 					try {
-						Thread.sleep(waitForEmployeeToTakeOrder);
-						System.out.println("#" + currentCustomer.getId() + " wait for employee.("
-								+ waitForEmployeeToTakeOrder + ")");
 						employees.acquire();
 
 					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
-					/// ---
-
 					employeeService(currentCustomer);
 
 				} finally {
 					parkingSpots.release();
 				}
-
 			});
-
 		}
 
 	}
 
 	private static void employeeService(Customer currentCustomer) {
-		checkEmployeeAvailability(currentCustomer);
+		// checkEmployeeAvailability(currentCustomer);
+		// sleep while taking order
+		int waitForEmployeeToTakeOrder = random.nextInt(1000);
+		sleep(waitForEmployeeToTakeOrder);
+		System.out.println("#" + currentCustomer.getId() + " wait for employee.(" + waitForEmployeeToTakeOrder + ")");
 		try {
 			processPayment(currentCustomer);
-			////////////////////////////////////////////////////////
+			employees.release();
 			prepareOrder(currentCustomer);
-			////////////////////////////
-			/**
-			 * Employee must be available to deliver food
-			 */
 			foodDelivery(currentCustomer);
-			///////////////////////////
 			mealTime(currentCustomer);
 			System.out.println("Customer #" + currentCustomer.getId() + " vacates the parking lot.");
 		} finally {
-			employees.release();
+			// employees.release();
 		}
 
 	}
@@ -100,14 +86,10 @@ public class SonicDrive {
 
 	private static void foodDelivery(Customer currentCustomer) {
 		try {
-			if (employees.availablePermits() != 0) {
-				employees.acquire();
-			} else {
-				sleep(2000);
-			}
+			employees.acquire();
 			System.out.println("Employee deliver's food: " + currentCustomer.getId());
-
 		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} finally {
 			employees.release();
@@ -115,19 +97,20 @@ public class SonicDrive {
 
 	}
 
-	public static void checkEmployeeAvailability(Customer currentCustomer) {
-		try {
-			if (employees.availablePermits() != 0) {
-				System.out.println("#" + currentCustomer.getId() + " employee is available for order.");
-				employees.acquire();
-			} else {
-				sleep(random.nextInt(2000));
-			}
-
-		} catch (InterruptedException ex) {
-
-		}
-	}
+	// public static void checkEmployeeAvailability(Customer currentCustomer) {
+	// try {
+	// if (employees.availablePermits() != 0) {
+	// System.out.println("#" + currentCustomer.getId() + " employee is available
+	// for order.");
+	// employees.acquire();
+	// } else {
+	// sleep(random.nextInt(2000));
+	// }
+	//
+	// } catch (InterruptedException ex) {
+	//
+	// }
+	// }
 
 	public static void prepareOrder(Customer currentCustomer) {
 		int preparingOrder = random.nextInt(5000);
@@ -137,11 +120,6 @@ public class SonicDrive {
 
 	public static void processPayment(Customer currentCustomer) {
 		currentCustomer.run();
-		if (employees.availablePermits() != 0) {
-			System.out.println("#" + currentCustomer.getId() + " employee processes the customer's payment.");
-		} else {
-			sleep(random.nextInt(2000));
-		}
 	}
 
 	private static void sleep(long t) {

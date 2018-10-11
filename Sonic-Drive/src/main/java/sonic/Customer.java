@@ -26,6 +26,12 @@ public class Customer extends Thread {
 
 	private void criticalPaymentSession() {
 		int x = paymentProcessingSystem;
+		try {
+			Thread.sleep(gen.nextInt(3500));
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		System.out.println("# " + this.getId() + " - payment is processed.");
 		x++;
 		paymentProcessingSystem = x;
