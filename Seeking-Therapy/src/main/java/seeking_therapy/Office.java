@@ -22,7 +22,7 @@ public class Office {
 	public static long therapistStartTime = System.currentTimeMillis();
 
 	public static void main(String[] args) {
-
+		System.out.println("Started Succuessfully: \n");
 		// System.out.println("Current Time: " + therapistStartTime);
 		// elapsedTime();
 
@@ -86,10 +86,11 @@ public class Office {
 
 				}
 			}
+			patientService.shutdownNow();
+			dayIsNotOver = false;
+
+			threadResoureStarvation();
 		}
-		patientService.shutdownNow();
-		dayIsNotOver = false;
-		threadResoureStarvation();
 	}
 
 	public static void threadResoureStarvation() {
